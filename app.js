@@ -39,10 +39,15 @@ const joinCodeBackdrop = document.querySelector("#joinCodeBackdrop");
 const joinCodeClose = document.querySelector("#joinCodeClose");
 const joinCodeInput = document.querySelector("#joinCodeInput");
 const joinCodeSubmit = document.querySelector("#joinCodeSubmit");
+const speedrunCreateSheet = document.querySelector("#speedrunCreateSheet");
+const speedrunCreateBackdrop = document.querySelector("#speedrunCreateBackdrop");
+const speedrunCreateClose = document.querySelector("#speedrunCreateClose");
+const speedrunCreateSubmit = document.querySelector("#speedrunCreateSubmit");
 const matchSizeButtons = document.querySelectorAll("[data-match-size]");
 const battleGoalButtons = document.querySelectorAll("[data-score-goal]");
 const roomTimeLimitButtons = document.querySelectorAll("[data-room-time-limit]");
 const speedrunTimeLimitButtons = document.querySelectorAll("[data-speedrun-time-limit]");
+const speedrunProblemTimeLimitButtons = document.querySelectorAll("[data-speedrun-problem-time-limit]");
 const roomCodeLabel = document.querySelector("#roomCodeLabel");
 const lobbyModeLabel = document.querySelector("#lobbyModeLabel");
 const playerList = document.querySelector("#playerList");
@@ -139,7 +144,7 @@ const rollLayer = document.querySelector("#rollLayer");
 const rollStage = document.querySelector("#rollStage");
 const operatorButtons = document.querySelectorAll("[data-op]");
 
-const APP_BUILD = "20260615-speedrun-test1";
+const APP_BUILD = "20260615-speedrun-test2";
 const BATTLE_TIME_LIMIT_MS = 120000;
 const DEFAULT_TIME_LIMIT_MS = 120000;
 const SHORT_TIME_LIMIT_MS = 60000;
@@ -227,6 +232,7 @@ let selectedBattleTargetScore = normalizeBattleTargetScore(localStorage.getItem(
 let selectedSoloTimeLimit = normalizeSoloTimeLimit(localStorage.getItem("diceMath.soloTimeLimit") || DEFAULT_TIME_LIMIT_MS);
 let selectedRoomTimeLimit = normalizeTimeLimit(localStorage.getItem("diceMath.roomTimeLimit") || DEFAULT_TIME_LIMIT_MS);
 let selectedSpeedrunTimeLimit = normalizeSpeedrunTimeLimit(localStorage.getItem("diceMath.speedrunTimeLimit") || DEFAULT_SPEEDRUN_TIME_LIMIT_MS);
+let selectedSpeedrunProblemTimeLimit = normalizeTimeLimit(localStorage.getItem("diceMath.speedrunProblemTimeLimit") || SHORT_TIME_LIMIT_MS);
 let soundEnabled = localStorage.getItem("diceMath.soundEnabled") !== "false";
 let firebaseUserProfile = null;
 let firebaseProfileReady = false;
@@ -267,6 +273,7 @@ const battleState = {
   speedrunProblemIndex: 0,
   speedrunStartKey: null,
   speedrunFinishKey: null,
+  speedrunProblemTimeoutKey: null,
 };
 const firebaseState = {
   ready: false,
@@ -287,6 +294,7 @@ renderBattleGoalOptions();
 renderSoloTimeLimitOptions();
 renderRoomTimeLimitOptions();
 renderSpeedrunTimeLimitOptions();
+renderSpeedrunProblemTimeLimitOptions();
 applySkin(selectedSkin, { closeSheet: false });
 renderGame();
 
@@ -356,7 +364,7 @@ onlineButton.addEventListener("click", openOnlineDifficultySheet);
 onlineBackButton.addEventListener("click", handleOnlineBackClick);
 leaveRoomButton.addEventListener("click", leaveCurrentRoom);
 createRoomButton.addEventListener("click", () => createOnlineRoom("비공개 친구 방", 4, createRoomButton));
-largeRoomButton.addEventListener("click", () => createSpeedrunRoom(largeRoomButton));
+largeRoomButton.addEventListener("click", openSpeedrunCreateSheet);
 joinRoomButton.addEventListener("click", openJoinCodeSheet);
 joinCodeBackdrop.addEventListener("click", closeJoinCodeSheet);
 joinCodeClose.addEventListener("click", closeJoinCodeSheet);
@@ -390,9 +398,19 @@ speedrunTimeLimitButtons.forEach((button) => {
     renderSpeedrunTimeLimitOptions();
   });
 });
+speedrunProblemTimeLimitButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    selectedSpeedrunProblemTimeLimit = normalizeTimeLimit(button.dataset.speedrunProblemTimeLimit);
+    localStorage.setItem("diceMath.speedrunProblemTimeLimit", String(selectedSpeedrunProblemTimeLimit));
+    renderSpeedrunProblemTimeLimitOptions();
+  });
+});
 onlineReadyButton.addEventListener("click", handleOnlineReadyClick);
 hostControlButton.addEventListener("click", handleHostControl);
 battleFinalClose.addEventListener("click", closeBattleFinalModal);
+speedrunCreateBackdrop.addEventListener("click", closeSpeedrunCreateSheet);
+speedrunCreateClose.addEventListener("click", closeSpeedrunCreateSheet);
+speedrunCreateSubmit.addEventListener("click", () => createSpeedrunRoom(speedrunCreateSubmit));
 settingsOpenButtons.forEach((button) => {
   button.addEventListener("click", openSettingsSheet);
 });
@@ -955,6 +973,12 @@ function renderSpeedrunTimeLimitOptions() {
   });
 }
 
+function renderSpeedrunProblemTimeLimitOptions() {
+  speedrunProblemTimeLimitButtons.forEach((button) => {
+    button.classList.toggle("active", normalizeTimeLimit(button.dataset.speedrunProblemTimeLimit) === selectedSpeedrunProblemTimeLimit);
+  });
+}
+
 function openSoloSheet() {
   selectedDifficulty = localStorage.getItem("diceMath.difficulty") || "basic";
   selectedSoloTimeLimit = normalizeSoloTimeLimit(localStorage.getItem("diceMath.soloTimeLimit") ?? selectedSoloTimeLimit);
@@ -975,6 +999,17 @@ function openJoinCodeSheet() {
 
 function closeJoinCodeSheet() {
   joinCodeSheet.hidden = true;
+}
+
+function openSpeedrunCreateSheet() {
+  if (blockInvalidNicknameEntry()) return;
+  renderSpeedrunTimeLimitOptions();
+  renderSpeedrunProblemTimeLimitOptions();
+  speedrunCreateSheet.hidden = false;
+}
+
+function closeSpeedrunCreateSheet() {
+  speedrunCreateSheet.hidden = true;
 }
 
 function openOnlineDifficultySheet() {
@@ -1056,9 +1091,11 @@ async function createSpeedrunRoom(sourceButton) {
       nickname: getOnlineNickname(),
       difficulty: selectedOnlineDifficulty,
       timeLimit: selectedSpeedrunTimeLimit,
+      problemTimeLimit: selectedSpeedrunProblemTimeLimit,
       playerLimit: SPEEDRUN_PLAYER_LIMIT,
       targetSolves: SPEEDRUN_TARGET_SOLVES,
     });
+    closeSpeedrunCreateSheet();
     openBattleLobby(SPEEDRUN_MODE_NAME, SPEEDRUN_PLAYER_LIMIT, result.code, {
       firebaseRoomCode: result.code,
       isHost: true,
@@ -1067,7 +1104,8 @@ async function createSpeedrunRoom(sourceButton) {
     battleRuleNote.textContent = getBattleRuleNote(SPEEDRUN_MODE_NAME);
   } catch (error) {
     console.warn("Firebase 스피드런 대회방 생성 실패:", error);
-    battleRuleNote.textContent = "스피드런 대회방 생성에 실패했습니다. Firebase 설정을 확인해 주세요.";
+    const message = error?.code ? `스피드런 대회방 생성 실패: ${error.code}` : "스피드런 대회방 생성에 실패했습니다.";
+    battleRuleNote.textContent = `${message} Firebase 규칙 게시와 최신 파일 업로드를 확인해 주세요.`;
   } finally {
     clearButtonBusy(sourceButton);
   }
@@ -1219,6 +1257,7 @@ function clearButtonBusy(button) {
 function openOnlineScreen() {
   closeSoloSheet();
   closeJoinCodeSheet();
+  closeSpeedrunCreateSheet();
   closeSettingsSheet();
   closeOnlineDifficultySheet();
   closeSuccessResult();
@@ -1415,6 +1454,7 @@ function applyFirebaseRoomSnapshot(room) {
         currentIndex: Number(player.currentIndex || 0),
         finished: Boolean(player.finished),
         finishTime: Number(player.finishTime || 0),
+        problemStartedAt: Number(player.problemStartedAt || 0),
         joinedAt: Number.isFinite(joinedAt) ? joinedAt : 0,
       };
     })
@@ -1803,6 +1843,16 @@ function getSpeedrunElapsedMs() {
   return Math.max(0, Math.min(limit, getFirebaseNow() - battleState.firebaseSolveStartedAt));
 }
 
+function getSpeedrunProblemTimeLimitMs(room = battleState.firebaseRoomSnapshot || {}) {
+  return normalizeTimeLimit(room.problemTimeLimit || selectedSpeedrunProblemTimeLimit);
+}
+
+function getSpeedrunProblemElapsedMs(player = getCurrentBattlePlayer()) {
+  const rawStartedAt = Number(player?.problemStartedAt || 0);
+  const startedAt = Math.max(rawStartedAt || 0, battleState.firebaseSolveStartedAt || 0) || getFirebaseNow();
+  return Math.max(0, getFirebaseNow() - startedAt);
+}
+
 function getSpeedrunProblemSet(room) {
   const rawSet = Array.isArray(room.problemSet)
     ? room.problemSet
@@ -1874,7 +1924,9 @@ function startSpeedrunClock(room) {
       onlineReadyButton.textContent = "시간 종료";
       submitSpeedrunTimeoutIfNeeded();
       maybeFinishSpeedrun(battleState.firebaseRoomSnapshot || room);
+      return;
     }
+    maybeAutoPassSpeedrunProblem(battleState.firebaseRoomSnapshot || room);
   };
 
   updateClock();
@@ -1908,6 +1960,7 @@ function renderSpeedrunCurrentProblem(room, currentPlayer = getCurrentBattlePlay
 
   if (battleState.speedrunProblemIndex !== currentIndex || game.mode !== "speedrun") {
     battleState.speedrunProblemIndex = currentIndex;
+    battleState.speedrunProblemTimeoutKey = null;
     applyProblemToGame(problem, "speedrun");
   }
 
@@ -1917,7 +1970,7 @@ function renderSpeedrunCurrentProblem(room, currentPlayer = getCurrentBattlePlay
   battlePassButton.disabled = false;
   onlineReadyButton.disabled = true;
   onlineReadyButton.textContent = `정답 ${Number(currentPlayer.solvedCount || 0)}/${targetSolves}`;
-  setFeedback(`${currentIndex + 1}번 문제 · 정답 ${Number(currentPlayer.solvedCount || 0)}/${targetSolves} · 패스 가능`);
+  setFeedback(`${currentIndex + 1}번 문제 · 문제당 ${Math.round(getSpeedrunProblemTimeLimitMs(room) / 1000)}초 · 정답 ${Number(currentPlayer.solvedCount || 0)}/${targetSolves} · 패스 가능`);
 }
 
 async function handleSpeedrunCorrectAnswer(time, expression) {
@@ -1967,6 +2020,33 @@ async function handleSpeedrunPass() {
     game.isSolved = false;
     setBattleInputEnabled(true);
     battlePassButton.disabled = false;
+  }
+}
+
+async function maybeAutoPassSpeedrunProblem(room) {
+  if (!room || game.mode !== "speedrun" || game.isSolved || !battleState.firebaseRoomCode) return;
+  const me = getCurrentBattlePlayer();
+  if (!me || me.finished) return;
+  const problemLimit = getSpeedrunProblemTimeLimitMs(room);
+  if (getSpeedrunProblemElapsedMs(me) < problemLimit) return;
+
+  const timeoutKey = `${battleState.firebaseRoomCode}:${me.id}:${me.currentIndex}:problem-timeout`;
+  if (battleState.speedrunProblemTimeoutKey === timeoutKey) return;
+  battleState.speedrunProblemTimeoutKey = timeoutKey;
+
+  game.isSolved = true;
+  setBattleInputEnabled(false);
+  battlePassButton.disabled = true;
+  setFeedback("문제 제한시간이 지나 자동 패스됩니다.");
+
+  try {
+    await window.diceFirebase.submitSpeedrunPass(battleState.firebaseRoomCode, {
+      problemIndex: Number(me.currentIndex || 0),
+      elapsed: getSpeedrunElapsedMs(),
+    });
+  } catch (error) {
+    battleState.speedrunProblemTimeoutKey = null;
+    console.warn("스피드런 자동 패스 저장 실패:", error);
   }
 }
 
@@ -2583,7 +2663,9 @@ function setOnlinePhase(phase) {
 function getBattleRuleNote(mode) {
   const goalText = `${battleState.targetScore || selectedBattleTargetScore}점 먼저 도달`;
   if (isSpeedrunMode(mode)) {
-    return `${formatMinutes(battleState.timeLimit || selectedSpeedrunTimeLimit)}분 스피드런 · 정답 ${SPEEDRUN_TARGET_SOLVES}개 목표 · 패스 가능 · 최대 ${SPEEDRUN_PLAYER_LIMIT}명`;
+    const room = battleState.firebaseRoomSnapshot || {};
+    const problemSeconds = Math.round(normalizeTimeLimit(room.problemTimeLimit || selectedSpeedrunProblemTimeLimit) / 1000);
+    return `${formatMinutes(battleState.timeLimit || selectedSpeedrunTimeLimit)}분 스피드런 · 문제당 ${problemSeconds}초 · 정답 ${SPEEDRUN_TARGET_SOLVES}개 목표 · 패스 가능 · 2~${SPEEDRUN_PLAYER_LIMIT}명`;
   }
 
   if (mode.includes("자동매칭")) {
@@ -3033,6 +3115,7 @@ function openHome() {
   closeSoloSheet();
   closeSettingsSheet();
   closeOnlineDifficultySheet();
+  closeSpeedrunCreateSheet();
   closeSuccessResult();
   stopTimer();
   clearCountdown();
@@ -3244,7 +3327,8 @@ function getGameUi(mode = game.mode) {
 }
 
 function getAllGameUis() {
-  return [getGameUi("solo"), getGameUi("battle"), getGameUi("speedrun")];
+  const onlineMode = game.mode === "speedrun" ? "speedrun" : "battle";
+  return [getGameUi("solo"), getGameUi(onlineMode)];
 }
 
 function renderGame() {

@@ -11,10 +11,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="주사위 연산">
   <title>주사위 연산 앱 모드</title>
-  <link rel="manifest" href="manifest.webmanifest?v=20260615-speedrun-test1">
+  <link rel="manifest" href="manifest.webmanifest?v=20260615-speedrun-test2">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=20260615-speedrun-test1">
+  <link rel="stylesheet" href="styles.css?v=20260615-speedrun-test2">
 </head>
 <body>
   <main class="app-frame theme-basic" id="appFrame">
@@ -155,15 +155,6 @@
           <button type="button" data-room-time-limit="60000">60초</button>
           <button class="active" type="button" data-room-time-limit="120000">120초</button>
         </div>
-        <span>스피드런 시간</span>
-        <div class="battle-goal-options speedrun-time-options" id="speedrunTimeLimitOptions">
-          <button class="active" type="button" data-speedrun-time-limit="300000">5분</button>
-          <button type="button" data-speedrun-time-limit="600000">10분</button>
-          <button type="button" data-speedrun-time-limit="900000">15분</button>
-          <button type="button" data-speedrun-time-limit="1200000">20분</button>
-          <button type="button" data-speedrun-time-limit="1500000">25분</button>
-          <button type="button" data-speedrun-time-limit="1800000">30분</button>
-        </div>
       </section>
 
       <section class="online-menu" aria-label="온라인 대전 메뉴">
@@ -188,8 +179,8 @@
           <span>4인 빠른 승부</span>
         </button>
         <button class="large-room-button" id="largeRoomButton" type="button">
-          <strong>5인 이상 대전</strong>
-          <span>최대 10인 스피드런 대회</span>
+          <strong>스피드런 방 만들기</strong>
+          <span>코드로 참가하는 2~10인 대회</span>
         </button>
       </section>
 
@@ -316,6 +307,40 @@
       </div>
     </section>
 
+    <section class="join-code-sheet" id="speedrunCreateSheet" aria-label="스피드런 방 만들기" hidden>
+      <div class="sheet-backdrop" id="speedrunCreateBackdrop"></div>
+      <div class="sheet-panel">
+        <div class="sheet-handle"></div>
+        <header class="sheet-header">
+          <div>
+            <span>스피드런 대회</span>
+            <h2>방 설정</h2>
+          </div>
+          <button class="sheet-close" id="speedrunCreateClose" type="button" aria-label="닫기">×</button>
+        </header>
+        <div class="speedrun-setting-group">
+          <span>전체 제한시간</span>
+          <div class="battle-goal-options speedrun-time-options" id="speedrunTimeLimitOptions">
+            <button class="active" type="button" data-speedrun-time-limit="300000">5분</button>
+            <button type="button" data-speedrun-time-limit="600000">10분</button>
+            <button type="button" data-speedrun-time-limit="900000">15분</button>
+            <button type="button" data-speedrun-time-limit="1200000">20분</button>
+            <button type="button" data-speedrun-time-limit="1500000">25분</button>
+            <button type="button" data-speedrun-time-limit="1800000">30분</button>
+          </div>
+        </div>
+        <div class="speedrun-setting-group">
+          <span>문제당 제한시간</span>
+          <div class="battle-goal-options" id="speedrunProblemTimeLimitOptions">
+            <button class="active" type="button" data-speedrun-problem-time-limit="60000">60초</button>
+            <button type="button" data-speedrun-problem-time-limit="120000">120초</button>
+          </div>
+        </div>
+        <p class="join-code-help">정답 20개 먼저 달성하면 완주입니다. 안 풀리는 문제는 패스할 수 있어요.</p>
+        <button class="sheet-start" id="speedrunCreateSubmit" type="button">스피드런 방 만들기</button>
+      </div>
+    </section>
+
     <section class="skin-sheet" id="skinSheet" aria-label="스킨 선택" hidden>
       <div class="sheet-backdrop" id="skinSheetBackdrop"></div>
       <div class="skin-sheet-panel">
@@ -417,7 +442,7 @@
           </div>
           <div>
             <span>버전</span>
-            <strong id="settingsVersion">20260615-speedrun-test1</strong>
+            <strong id="settingsVersion">20260615-speedrun-test2</strong>
           </div>
         </div>
 
@@ -605,8 +630,8 @@
   <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-database-compat.js"></script>
-  <script src="firebase-config.js?v=20260615-speedrun-test1"></script>
-  <script src="firebase-client.js?v=20260615-speedrun-test1"></script>
-  <script src="app.js?v=20260615-speedrun-test1"></script>
+  <script src="firebase-config.js?v=20260615-speedrun-test2"></script>
+  <script src="firebase-client.js?v=20260615-speedrun-test2"></script>
+  <script src="app.js?v=20260615-speedrun-test2"></script>
 </body>
 </html>

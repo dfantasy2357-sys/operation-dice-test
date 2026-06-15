@@ -28,6 +28,9 @@
         "timeLimit": {
           ".validate": "newData.isNumber() && (newData.val() === 60000 || newData.val() === 120000 || newData.val() === 300000 || newData.val() === 600000 || newData.val() === 900000 || newData.val() === 1200000 || newData.val() === 1500000 || newData.val() === 1800000)"
         },
+        "problemTimeLimit": {
+          ".validate": "newData.isNumber() && (newData.val() === 60000 || newData.val() === 120000)"
+        },
         "progress": {
           "$uid": {
             ".write": "auth != null && (auth.uid === $uid || root.child('rooms').child($roomCode).child('hostUid').val() === auth.uid)"

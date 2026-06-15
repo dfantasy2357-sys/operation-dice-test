@@ -1084,6 +1084,17 @@ button,
   grid-template-columns: repeat(3, 1fr);
 }
 
+.speedrun-setting-group {
+  display: grid;
+  gap: 8px;
+}
+
+.speedrun-setting-group > span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 950;
+}
+
 .battle-goal-options button {
   height: 38px;
   border-radius: 8px;

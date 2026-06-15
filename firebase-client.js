@@ -358,6 +358,7 @@
       nickname,
       difficulty = "basic",
       timeLimit = 300000,
+      problemTimeLimit = 60000,
       playerLimit = 10,
       targetSolves = 20,
     }) {
@@ -380,6 +381,7 @@
           targetScore: 200,
           targetSolves: Math.min(20, Math.max(1, Number(targetSolves || 20))),
           timeLimit: normalizeSpeedrunTimeLimit(timeLimit),
+          problemTimeLimit: normalizeTimeLimit(problemTimeLimit),
           phase: "lobby",
           round: 0,
           hostUid: uid,
@@ -700,6 +702,7 @@
         updates[`players/${playerUid}/currentIndex`] = 0;
         updates[`players/${playerUid}/finishTime`] = 0;
         updates[`players/${playerUid}/finished`] = false;
+        updates[`players/${playerUid}/problemStartedAt`] = now;
         updates[`players/${playerUid}/activeRound`] = Number(room.round || 0) + 1;
         updates[`players/${playerUid}/waitingNextRound`] = false;
       });
@@ -764,6 +767,7 @@
       const updates = {
         [`players/${uid}/solvedCount`]: solvedCount,
         [`players/${uid}/currentIndex`]: normalizedIndex + 1,
+        [`players/${uid}/problemStartedAt`]: finishTime ? player.problemStartedAt || now : now,
         [`players/${uid}/lastSolvedAt`]: Math.max(0, Math.round(Number(elapsed || 0))),
         [`players/${uid}/status`]: finishTime ? "완주" : "도전 중",
         [`players/${uid}/finished`]: Boolean(finishTime),
@@ -797,6 +801,7 @@
       const updates = {
         [`players/${uid}/passedCount`]: Number(player.passedCount || 0) + 1,
         [`players/${uid}/currentIndex`]: normalizedIndex + 1,
+        [`players/${uid}/problemStartedAt`]: now,
         [`players/${uid}/status`]: "도전 중",
         [`progress/${uid}/${normalizedIndex}/type`]: "pass",
         [`progress/${uid}/${normalizedIndex}/elapsed`]: Math.max(0, Math.round(Number(elapsed || 0))),
