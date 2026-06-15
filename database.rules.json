@@ -6,7 +6,7 @@
       "$roomCode": {
         ".read": "auth != null",
         ".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid) || (data.exists() && newData.val() === null && data.child('hostUid').val() === auth.uid) || (data.exists() && newData.val() === null && data.child('matchmaking').val() === true && data.child('players').child(auth.uid).exists()))",
-        ".validate": "newData.val() === null || (newData.hasChildren(['code', 'mode', 'playerCount', 'phase', 'round', 'hostUid', 'players', 'targetScore']) && newData.child('code').val() === $roomCode && newData.child('playerCount').isNumber() && newData.child('playerCount').val() >= 2 && newData.child('playerCount').val() <= 8 && newData.child('round').isNumber() && newData.child('round').val() >= 0 && newData.child('hostUid').isString() && newData.child('targetScore').isNumber() && (newData.child('targetScore').val() === 100 || newData.child('targetScore').val() === 200 || newData.child('targetScore').val() === 300 || newData.child('targetScore').val() === 500))",
+        ".validate": "newData.val() === null || (newData.hasChildren(['code', 'mode', 'playerCount', 'phase', 'round', 'hostUid', 'players', 'targetScore']) && newData.child('code').val() === $roomCode && newData.child('playerCount').isNumber() && newData.child('playerCount').val() >= 2 && newData.child('playerCount').val() <= 10 && newData.child('round').isNumber() && newData.child('round').val() >= 0 && newData.child('hostUid').isString() && newData.child('targetScore').isNumber() && (newData.child('targetScore').val() === 100 || newData.child('targetScore').val() === 200 || newData.child('targetScore').val() === 300 || newData.child('targetScore').val() === 500))",
         "players": {
           "$uid": {
             ".write": "auth != null && (auth.uid === $uid || root.child('rooms').child($roomCode).child('hostUid').val() === auth.uid)",
@@ -26,7 +26,12 @@
           ".validate": "newData.isNumber() && (newData.val() === 100 || newData.val() === 200 || newData.val() === 300 || newData.val() === 500)"
         },
         "timeLimit": {
-          ".validate": "newData.isNumber() && (newData.val() === 60000 || newData.val() === 120000)"
+          ".validate": "newData.isNumber() && (newData.val() === 60000 || newData.val() === 120000 || newData.val() === 300000 || newData.val() === 600000 || newData.val() === 900000 || newData.val() === 1200000 || newData.val() === 1500000 || newData.val() === 1800000)"
+        },
+        "progress": {
+          "$uid": {
+            ".write": "auth != null && (auth.uid === $uid || root.child('rooms').child($roomCode).child('hostUid').val() === auth.uid)"
+          }
         },
         "roundResults": {
           ".write": "auth != null && root.child('rooms').child($roomCode).child('hostUid').val() === auth.uid"

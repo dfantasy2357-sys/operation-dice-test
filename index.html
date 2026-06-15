@@ -11,10 +11,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="주사위 연산">
   <title>주사위 연산 앱 모드</title>
-  <link rel="manifest" href="manifest.webmanifest?v=20260614-large-room-test1">
+  <link rel="manifest" href="manifest.webmanifest?v=20260615-speedrun-test1">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=20260614-large-room-test1">
+  <link rel="stylesheet" href="styles.css?v=20260615-speedrun-test1">
 </head>
 <body>
   <main class="app-frame theme-basic" id="appFrame">
@@ -155,6 +155,15 @@
           <button type="button" data-room-time-limit="60000">60초</button>
           <button class="active" type="button" data-room-time-limit="120000">120초</button>
         </div>
+        <span>스피드런 시간</span>
+        <div class="battle-goal-options speedrun-time-options" id="speedrunTimeLimitOptions">
+          <button class="active" type="button" data-speedrun-time-limit="300000">5분</button>
+          <button type="button" data-speedrun-time-limit="600000">10분</button>
+          <button type="button" data-speedrun-time-limit="900000">15분</button>
+          <button type="button" data-speedrun-time-limit="1200000">20분</button>
+          <button type="button" data-speedrun-time-limit="1500000">25분</button>
+          <button type="button" data-speedrun-time-limit="1800000">30분</button>
+        </div>
       </section>
 
       <section class="online-menu" aria-label="온라인 대전 메뉴">
@@ -180,7 +189,7 @@
         </button>
         <button class="large-room-button" id="largeRoomButton" type="button">
           <strong>5인 이상 대전</strong>
-          <span>코드로 모이는 최대 8인 테스트</span>
+          <span>최대 10인 스피드런 대회</span>
         </button>
       </section>
 
@@ -253,6 +262,7 @@
               </section>
               <div class="game-action-row battle-action-row">
                 <button class="clear-expression-button" id="battleClearExpressionButton" type="button">전체 지우기</button>
+                <button class="pass-button" id="battlePassButton" type="button" hidden>패스</button>
                 <button class="answer-check-button" id="battleAnswerCheckButton" type="button">제출</button>
               </div>
               <p class="game-feedback battle-feedback" id="battleFeedback">정답을 먼저 낸 사람의 식은 라운드 종료 후 공개됩니다.</p>
@@ -407,7 +417,7 @@
           </div>
           <div>
             <span>버전</span>
-            <strong id="settingsVersion">20260614-large-room-test1</strong>
+            <strong id="settingsVersion">20260615-speedrun-test1</strong>
           </div>
         </div>
 
@@ -595,8 +605,8 @@
   <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-database-compat.js"></script>
-  <script src="firebase-config.js?v=20260614-large-room-test1"></script>
-  <script src="firebase-client.js?v=20260614-large-room-test1"></script>
-  <script src="app.js?v=20260614-large-room-test1"></script>
+  <script src="firebase-config.js?v=20260615-speedrun-test1"></script>
+  <script src="firebase-client.js?v=20260615-speedrun-test1"></script>
+  <script src="app.js?v=20260615-speedrun-test1"></script>
 </body>
 </html>

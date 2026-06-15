@@ -1040,6 +1040,14 @@ button,
   grid-column: 1 / -1;
 }
 
+.battle-action-row .pass-button {
+  min-height: 48px;
+  border-radius: 8px;
+  background: #ffe08a;
+  color: #3b2a00;
+  font-weight: 950;
+}
+
 .online-menu strong {
   font-size: 17px;
   font-weight: 950;
@@ -1070,6 +1078,10 @@ button,
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
+}
+
+.speedrun-time-options {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .battle-goal-options button {
