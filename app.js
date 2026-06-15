@@ -144,7 +144,7 @@ const rollLayer = document.querySelector("#rollLayer");
 const rollStage = document.querySelector("#rollStage");
 const operatorButtons = document.querySelectorAll("[data-op]");
 
-const APP_BUILD = "20260615-speedrun-test2";
+const APP_BUILD = "20260615-speedrun-timer1";
 const BATTLE_TIME_LIMIT_MS = 120000;
 const DEFAULT_TIME_LIMIT_MS = 120000;
 const SHORT_TIME_LIMIT_MS = 60000;
@@ -1400,8 +1400,19 @@ function clearSoloLobbyWaitTimer() {
 
 function scheduleSoloLobbyWaitTimer(room) {
   const playerTotal = Object.keys(room.players || {}).length;
-  if (room.speedrun === true || room.phase !== "lobby" || playerTotal !== 1 || !battleState.firebaseRoomCode) {
+  const shouldTrackSoloRoom = battleState.firebaseRoomCode
+    && playerTotal === 1
+    && (
+      (room.speedrun === true && room.phase !== "final")
+      || (room.speedrun !== true && room.phase === "lobby")
+    );
+
+  if (!shouldTrackSoloRoom) {
     clearSoloLobbyWaitTimer();
+    return;
+  }
+
+  if (room.speedrun === true && battleState.soloLobbyTimerId && battleState.soloLobbyDeadline) {
     return;
   }
 
@@ -1415,11 +1426,16 @@ function scheduleSoloLobbyWaitTimer(room) {
     battleState.soloLobbyTimerId = null;
     battleState.soloLobbyDeadline = null;
     const snapshot = battleState.firebaseRoomSnapshot || {};
-    const stillSoloLobby = snapshot.phase === "lobby"
-      && Object.keys(snapshot.players || {}).length === 1;
+    const stillSoloLobby = Object.keys(snapshot.players || {}).length === 1
+      && (
+        (snapshot.speedrun === true && snapshot.phase !== "final")
+        || (snapshot.speedrun !== true && snapshot.phase === "lobby")
+      );
     if (!stillSoloLobby) return;
 
-    battleRuleNote.textContent = "1인 대기가 2분을 넘어 방이 정리되었습니다. 다시 신청해 주세요.";
+    battleRuleNote.textContent = snapshot.speedrun === true
+      ? "혼자 남은 지 2분이 지나 스피드런 방이 정리되었습니다."
+      : "1인 대기가 2분을 넘어 방이 정리되었습니다. 다시 신청해 주세요.";
     await leaveCurrentRoom();
   }, Math.max(0, deadline - getFirebaseNow()));
 }
@@ -1767,7 +1783,7 @@ function getTimeLimitSeconds(limit = getBattleTimeLimitMs()) {
 function renderBattleTimeLimit() {
   if (battleTimeLimitLabel) {
     battleTimeLimitLabel.textContent = isSpeedrunMode()
-      ? `제한시간 ${formatMinutes(battleState.timeLimit || selectedSpeedrunTimeLimit)}분`
+      ? `총 남은 ${formatDurationClock(battleState.timeLimit || selectedSpeedrunTimeLimit)}`
       : `제한시간 ${getTimeLimitSeconds()}초`;
   }
 }
@@ -1853,6 +1869,18 @@ function getSpeedrunProblemElapsedMs(player = getCurrentBattlePlayer()) {
   return Math.max(0, getFirebaseNow() - startedAt);
 }
 
+function updateSpeedrunClockDisplay(room = battleState.firebaseRoomSnapshot || {}) {
+  const totalLimit = normalizeSpeedrunTimeLimit(battleState.timeLimit || room.timeLimit);
+  const totalRemaining = Math.max(0, totalLimit - getSpeedrunElapsedMs());
+  const problemLimit = getSpeedrunProblemTimeLimitMs(room);
+  const problemRemaining = Math.max(0, problemLimit - getSpeedrunProblemElapsedMs());
+
+  if (battleTimeLimitLabel) {
+    battleTimeLimitLabel.textContent = `총 남은 ${formatDurationClock(totalRemaining)}`;
+  }
+  battleElapsed.textContent = `문제 ${formatDurationClock(problemRemaining)}`;
+}
+
 function getSpeedrunProblemSet(room) {
   const rawSet = Array.isArray(room.problemSet)
     ? room.problemSet
@@ -1916,7 +1944,7 @@ function startSpeedrunClock(room) {
 
   const updateClock = () => {
     const elapsed = getSpeedrunElapsedMs();
-    updateBattleElapsed(elapsed);
+    updateSpeedrunClockDisplay(battleState.firebaseRoomSnapshot || room);
     if (elapsed >= normalizeSpeedrunTimeLimit(battleState.timeLimit)) {
       setBattleInputEnabled(false);
       battlePassButton.disabled = true;
@@ -4004,6 +4032,13 @@ function formatBattleClock(ms) {
     return `${minutes}:${seconds}`;
   }
   return `${totalSeconds}초`;
+}
+
+function formatDurationClock(ms) {
+  const totalSeconds = Math.ceil(Math.max(0, Number(ms || 0)) / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = String(totalSeconds % 60).padStart(2, "0");
+  return `${minutes}:${seconds}`;
 }
 
 function updateBattleElapsed(time) {
