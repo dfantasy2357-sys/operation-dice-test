@@ -1,0 +1,602 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#121723">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="주사위 연산">
+  <title>주사위 연산 앱 모드</title>
+  <link rel="manifest" href="manifest.webmanifest?v=20260614-large-room-test1">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css?v=20260614-large-room-test1">
+</head>
+<body>
+  <main class="app-frame theme-basic" id="appFrame">
+    <section class="splash" id="splash" aria-label="로딩 화면">
+      <div class="splash-table">
+        <div class="splash-die die-a">10</div>
+        <div class="splash-die die-b">4</div>
+        <div class="splash-die die-c">6</div>
+        <div class="splash-die die-d">2</div>
+        <div class="splash-die die-e">5</div>
+      </div>
+      <div class="brand-lockup">
+        <p>mental arithmetic dice game</p>
+        <h1>주사위 연산</h1>
+      </div>
+    </section>
+
+    <section class="home screen active" id="home" aria-label="첫 화면">
+      <header class="home-header">
+        <div>
+          <p class="eyebrow">오늘의 연습</p>
+          <h1>주사위 연산</h1>
+        </div>
+        <button class="icon-button" type="button" aria-label="설정" data-settings-open>⚙</button>
+      </header>
+
+      <section class="hero-board" aria-label="주사위판 미리보기">
+        <div class="board-rail">
+          <div class="board-felt">
+            <div class="skin-doodles" aria-hidden="true">
+              <span class="chalk chalk-a">7+8=15</span>
+              <span class="chalk chalk-b">x ÷ + −</span>
+              <span class="chalk chalk-c">떠든 사람</span>
+              <span class="box-doodle box-a">연산왕</span>
+              <span class="box-doodle box-b">★ ★</span>
+              <span class="box-doodle box-c">주사위 출동!</span>
+              <span class="star-doodle star-a">반짝</span>
+              <span class="star-doodle star-b">✦</span>
+              <span class="star-doodle star-c">45</span>
+              <span class="robot-doodle robot-a">0101</span>
+              <span class="robot-doodle robot-b">계산중</span>
+              <span class="robot-doodle robot-c">⟡</span>
+              <span class="dino-doodle dino-a">화석</span>
+              <span class="dino-doodle dino-b">발자국</span>
+              <span class="dino-doodle dino-c">100</span>
+            </div>
+            <div class="table-die black">40</div>
+            <div class="table-die black small">5</div>
+            <div class="table-die white die-one">6</div>
+            <div class="table-die white die-two">3</div>
+            <div class="table-die white die-three">2</div>
+            <div class="table-die white die-four">5</div>
+            <div class="table-die white die-five">1</div>
+          </div>
+        </div>
+        <div class="target-chip">목표 45</div>
+      </section>
+
+      <section class="profile-card" aria-label="플레이어 설정">
+        <div class="profile-copy">
+          <span>첫 설정</span>
+          <strong id="nicknamePreview">닉네임을 정해주세요</strong>
+        </div>
+        <label class="nickname-field">
+          <span>닉네임</span>
+          <input id="nicknameInput" maxlength="10" placeholder="예: 연산왕" autocomplete="off">
+        </label>
+      </section>
+
+      <section class="mode-grid" aria-label="시작 메뉴">
+        <button class="primary-action" id="soloButton" type="button">
+          <strong>혼자하기</strong>
+        </button>
+        <button class="locked-action" id="onlineButton" type="button">
+          <span id="unlockText">바로 입장</span>
+          <strong>온라인 대전</strong>
+          <div class="unlock-bar" aria-label="온라인 대전 해금 진행도">
+            <span id="unlockFill"></span>
+          </div>
+        </button>
+      </section>
+
+      <section class="skin-strip" aria-label="스킨 컬렉션">
+        <div class="section-title">
+          <h2>스킨</h2>
+          <button class="quiet-button" id="skinCollectionButton" type="button">전체 보기</button>
+        </div>
+        <button class="current-skin-card" id="currentSkinButton" type="button">
+          <span class="swatch basic" id="currentSkinSwatch"></span>
+          <span>
+            <small>현재 적용</small>
+            <strong id="currentSkinName">기본</strong>
+          </span>
+        </button>
+        <div class="reward-status">
+          <strong id="nextRewardProgress">37 / 100</strong>
+          <span id="nextRewardText">다음 스킨까지 63개</span>
+        </div>
+        <button class="reward-claim-button" id="skinRewardButton" type="button" hidden>새 스킨 받기</button>
+      </section>
+    </section>
+
+    <section class="online-screen screen" id="onlineScreen" aria-label="온라인 대전 화면">
+      <header class="game-header">
+        <button class="back-button" id="onlineBackButton" type="button">←</button>
+        <div class="game-title">
+          <span>그룹 배틀</span>
+          <strong>온라인 대전</strong>
+        </div>
+        <button class="leave-room-button" id="leaveRoomButton" type="button">나가기</button>
+      </header>
+
+      <section class="online-hero">
+        <div>
+          <span id="onlineStateLabel">바로 입장 가능</span>
+          <h2>같은 문제, 동시에 시작</h2>
+          <p id="onlineStateCopy">친구와 방 코드로 만나거나 자동매칭으로 바로 대전할 수 있어요.</p>
+        </div>
+        <div class="online-progress-card">
+          <strong id="onlineProgressCount">온라인 준비</strong>
+          <div class="unlock-bar" aria-label="온라인 대전 해금 진행도">
+            <span id="onlineProgressFill"></span>
+          </div>
+          <small class="firebase-status" id="firebaseStatus">Firebase 설정 전 · 목업 모드</small>
+        </div>
+      </section>
+
+      <section class="battle-goal-card" aria-label="온라인 목표 점수">
+        <span>목표 점수</span>
+        <div class="battle-goal-options" id="battleGoalOptions">
+          <button type="button" data-score-goal="100">100점</button>
+          <button class="active" type="button" data-score-goal="200">200점</button>
+          <button type="button" data-score-goal="300">300점</button>
+          <button type="button" data-score-goal="500">500점</button>
+        </div>
+        <span>방 제한시간</span>
+        <div class="battle-goal-options" id="roomTimeLimitOptions">
+          <button type="button" data-room-time-limit="60000">60초</button>
+          <button class="active" type="button" data-room-time-limit="120000">120초</button>
+        </div>
+      </section>
+
+      <section class="online-menu" aria-label="온라인 대전 메뉴">
+        <button id="createRoomButton" type="button">
+          <strong>방 만들기</strong>
+          <span>방 코드 생성</span>
+        </button>
+        <button id="joinRoomButton" type="button">
+          <strong>코드 참가</strong>
+          <span>친구 방에 들어가기</span>
+        </button>
+        <button class="match-size-button" type="button" data-match-size="2">
+          <strong>2인 자동매칭</strong>
+          <span>가볍게 1:1 대전</span>
+        </button>
+        <button class="match-size-button" type="button" data-match-size="3">
+          <strong>3인 자동매칭</strong>
+          <span>짧은 그룹 대전</span>
+        </button>
+        <button class="match-size-button" type="button" data-match-size="4">
+          <strong>4인 자동매칭</strong>
+          <span>4인 빠른 승부</span>
+        </button>
+        <button class="large-room-button" id="largeRoomButton" type="button">
+          <strong>5인 이상 대전</strong>
+          <span>코드로 모이는 최대 8인 테스트</span>
+        </button>
+      </section>
+
+      <section class="battle-lobby" id="battleLobby" aria-label="대전 대기방">
+        <div class="lobby-header">
+          <div>
+            <span>방 코드</span>
+            <strong id="roomCodeLabel">A7K2Q9</strong>
+          </div>
+          <small id="lobbyModeLabel">비공개 대기방</small>
+        </div>
+        <p class="battle-rule-note" id="battleRuleNote">제한시간 120초 · 시간초과 5점 · 누적점수로 순위 결정</p>
+        <div class="player-list" id="playerList">
+          <div class="player-row me">
+            <span class="player-badge">나</span>
+            <strong id="onlinePlayerName">나의 닉네임</strong>
+            <em>0점</em>
+            <small>준비 전</small>
+          </div>
+          <div class="player-row">
+            <span class="player-badge">2</span>
+            <strong>번개 계산왕</strong>
+            <em>0점</em>
+            <small>준비 완료</small>
+          </div>
+          <div class="player-row">
+            <span class="player-badge">3</span>
+            <strong>칠판 마스터</strong>
+            <em>0점</em>
+            <small>기다리는 중</small>
+          </div>
+        </div>
+        <div class="score-board" id="scoreBoard" aria-label="누적 점수판"></div>
+        <section class="battle-round-panel" id="battleRoundPanel" aria-label="온라인 라운드 진행" hidden>
+          <div class="battle-time-row">
+            <strong id="battleTimeLimitLabel">제한시간 120초</strong>
+            <span class="battle-room-code" id="battleRoomCode">코드 A7K2Q9</span>
+            <span id="battleElapsed">00.00</span>
+          </div>
+          <div class="battle-play-layout">
+            <aside class="battle-party-panel" aria-label="참가자 상태">
+              <div class="battle-party-title">파티</div>
+              <div class="battle-status-list" id="battleStatusList"></div>
+            </aside>
+            <div class="battle-play-area">
+              <div class="battle-countdown-layer" id="battleCountdownLayer" hidden>
+                <strong id="battleCountdownNumber">3</strong>
+              </div>
+              <div class="battle-problem-card">
+                <div class="battle-target-dice">
+                  <span class="game-die black" id="battleTensDie">?</span>
+                  <span>+</span>
+                  <span class="game-die black" id="battleOnesDie">?</span>
+                  <strong id="battleTargetLabel">목표 ?</strong>
+                </div>
+                <section class="game-dice-row battle-dice-row" id="battleDiceTray" aria-label="온라인 라운드 흰 주사위"></section>
+              </div>
+              <div class="expression-preview battle-expression-input" id="battleExpressionPreview" aria-label="온라인 라운드 입력한 식">
+                <span class="empty-expression">라운드가 시작되면 식을 만들 수 있어요.</span>
+              </div>
+              <section class="operator-bar battle-operator-bar" aria-label="온라인 라운드 연산자">
+                <button type="button" data-op="+">+</button>
+                <button type="button" data-op="-">−</button>
+                <button type="button" data-op="*">×</button>
+                <button type="button" data-op="/">÷</button>
+                <button type="button" data-op="(">(</button>
+                <button type="button" data-op=")">)</button>
+                <button class="power-op" id="battlePowerOp" type="button" data-op="power">^</button>
+                <button id="battleUndoButton" type="button">↶</button>
+              </section>
+              <div class="game-action-row battle-action-row">
+                <button class="clear-expression-button" id="battleClearExpressionButton" type="button">전체 지우기</button>
+                <button class="answer-check-button" id="battleAnswerCheckButton" type="button">제출</button>
+              </div>
+              <p class="game-feedback battle-feedback" id="battleFeedback">정답을 먼저 낸 사람의 식은 라운드 종료 후 공개됩니다.</p>
+            </div>
+          </div>
+        </section>
+        <section class="battle-result-summary" id="battleResultSummary" aria-label="라운드 결과 요약" hidden>
+          <div>
+            <span id="battleResultKicker">1라운드 결과</span>
+            <strong id="battleResultTitle">이번 라운드 순위</strong>
+          </div>
+          <p id="battleResultMeta">제출 시간, 식, 획득 점수를 확인하세요.</p>
+        </section>
+        <ol class="battle-result-list" id="battleResultList" hidden></ol>
+        <button class="ready-button" id="onlineReadyButton" type="button">모두 준비 완료 미리보기</button>
+        <button class="host-control-button" id="hostControlButton" type="button" hidden>자동시작 일시정지</button>
+        <aside class="ad-slot battle-ad-slot" id="battleAdSlot" aria-label="광고" hidden>
+          <span>광고</span>
+          <img src="ad-banner.jpg?v=20260605-rules1" alt="광고 배너">
+        </aside>
+      </section>
+
+      <section class="battle-final-modal" id="battleFinalModal" aria-label="최종 결과" hidden>
+        <div class="battle-final-card">
+          <span>게임 종료</span>
+          <strong id="battleFinalTitle">축하합니다!</strong>
+          <p id="battleFinalMessage">200점에 먼저 도달했어요.</p>
+          <ol id="battleFinalList"></ol>
+          <button id="battleFinalClose" type="button">온라인 메뉴로</button>
+        </div>
+      </section>
+    </section>
+
+    <section class="join-code-sheet" id="joinCodeSheet" aria-label="방 코드 입력" hidden>
+      <div class="sheet-backdrop" id="joinCodeBackdrop"></div>
+      <div class="sheet-panel">
+        <div class="sheet-handle"></div>
+        <header class="sheet-header">
+          <div>
+            <span>코드 참가</span>
+            <h2>방 코드 입력</h2>
+          </div>
+          <button class="sheet-close" id="joinCodeClose" type="button" aria-label="닫기">×</button>
+        </header>
+        <label class="join-code-field">
+          <span>6자리 코드</span>
+          <input id="joinCodeInput" maxlength="6" placeholder="A7K2Q9" autocomplete="off" inputmode="text">
+        </label>
+        <p class="join-code-help">영문과 숫자를 입력하세요. O, I, 0, 1은 사용하지 않습니다.</p>
+        <button class="sheet-start" id="joinCodeSubmit" type="button">방 참가</button>
+      </div>
+    </section>
+
+    <section class="skin-sheet" id="skinSheet" aria-label="스킨 선택" hidden>
+      <div class="sheet-backdrop" id="skinSheetBackdrop"></div>
+      <div class="skin-sheet-panel">
+        <div class="sheet-handle"></div>
+        <header class="sheet-header">
+          <div>
+            <span>스킨 컬렉션</span>
+            <h2>스킨 선택</h2>
+          </div>
+          <button class="sheet-close" id="skinSheetClose" type="button" aria-label="닫기">×</button>
+        </header>
+        <div class="skin-sheet-summary">
+          <strong id="skinSheetProgress">37 / 100</strong>
+          <span id="skinSheetNextReward">다음 스킨까지 63개</span>
+        </div>
+        <div class="skin-options" id="skinOptions">
+          <button class="skin-option active" type="button" data-skin="basic" data-unlock="0">
+            <span class="swatch basic"></span>
+            <strong>기본</strong>
+            <small>처음부터</small>
+          </button>
+          <button class="skin-option" type="button" data-skin="classroom" data-unlock="0">
+            <span class="swatch classroom"></span>
+            <strong>칠판</strong>
+            <small>처음부터</small>
+          </button>
+          <button class="skin-option" type="button" data-skin="box" data-unlock="0">
+            <span class="swatch box"></span>
+            <strong>종이박스</strong>
+            <small>처음부터</small>
+          </button>
+          <button class="skin-option locked" type="button" data-skin="star" data-unlock="100">
+            <span class="swatch star"></span>
+            <strong>별빛 연산실</strong>
+            <small>100개 보상</small>
+          </button>
+          <button class="skin-option locked" type="button" data-skin="robot" data-unlock="200">
+            <span class="swatch robot"></span>
+            <strong>로봇 실험실</strong>
+            <small>200개 보상</small>
+          </button>
+          <button class="skin-option locked" type="button" data-skin="dino" data-unlock="300">
+            <span class="swatch dino"></span>
+            <strong>공룡 연구소</strong>
+            <small>300개 보상</small>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="settings-sheet" id="settingsSheet" aria-label="설정" hidden>
+      <div class="sheet-backdrop" id="settingsBackdrop"></div>
+      <div class="sheet-panel settings-panel">
+        <div class="sheet-handle"></div>
+        <header class="sheet-header">
+          <div>
+            <span>설정</span>
+            <h2>게임 설정</h2>
+          </div>
+          <button class="sheet-close" id="settingsClose" type="button" aria-label="닫기">×</button>
+        </header>
+
+        <label class="nickname-field settings-nickname-field">
+          <span>닉네임</span>
+          <input id="settingsNicknameInput" maxlength="10" placeholder="예: 연산왕" autocomplete="off">
+        </label>
+        <p class="settings-help" id="settingsNicknameHelp">닉네임은 온라인 대전에서 표시됩니다.</p>
+
+        <div class="settings-row">
+          <div>
+            <strong>효과음</strong>
+            <span>정답과 보상 효과음을 재생합니다.</span>
+          </div>
+          <button class="settings-toggle" id="soundToggleButton" type="button" aria-pressed="true">켜짐</button>
+        </div>
+
+        <details class="settings-details">
+          <summary>게임 설명 / 규칙 보기</summary>
+          <p>검은 주사위 두 개의 합이 목표 숫자입니다. 흰 주사위 5개와 연산자를 모두 활용해 목표값을 만들면 성공입니다.</p>
+          <p>온라인 대전은 같은 문제를 동시에 풀고, 빠르게 맞힌 순서대로 점수를 받습니다. 먼저 목표 점수에 도달하면 게임이 종료됩니다.</p>
+        </details>
+
+        <div class="settings-info-list">
+          <div>
+            <span>문의 / 버그 제보</span>
+            <strong>화면과 상황을 제작자에게 알려주세요.</strong>
+          </div>
+          <div>
+            <span>데이터 안내</span>
+            <strong>익명 로그인, 닉네임, 게임 진행 데이터만 사용합니다.</strong>
+          </div>
+          <div>
+            <span>사용자 ID</span>
+            <strong id="settingsPublicId">연결 후 표시됩니다</strong>
+          </div>
+          <div>
+            <span>제작자</span>
+            <strong>CNMMATH</strong>
+          </div>
+          <div>
+            <span>버전</span>
+            <strong id="settingsVersion">20260614-large-room-test1</strong>
+          </div>
+        </div>
+
+        <button class="settings-reset-button" id="resetDataButton" type="button">데이터 초기화</button>
+      </div>
+    </section>
+
+    <section class="online-difficulty-sheet" id="onlineDifficultySheet" aria-label="온라인 난이도 선택" hidden>
+      <div class="sheet-backdrop" id="onlineDifficultyBackdrop"></div>
+      <div class="sheet-panel">
+        <div class="sheet-handle"></div>
+        <header class="sheet-header">
+          <div>
+            <span>온라인 대전</span>
+            <h2>난이도 선택</h2>
+          </div>
+          <button class="sheet-close" id="onlineDifficultyClose" type="button" aria-label="닫기">×</button>
+        </header>
+        <div class="difficulty-cards">
+          <button class="difficulty-card active" type="button" data-online-difficulty="basic">
+            <span>기본</span>
+            <strong>사칙연산</strong>
+          </button>
+          <button class="difficulty-card" type="button" data-online-difficulty="power">
+            <span>도전</span>
+            <strong>지수 포함</strong>
+          </button>
+        </div>
+        <button class="sheet-start" id="onlineDifficultyStart" type="button">온라인 입장</button>
+      </div>
+    </section>
+
+    <section class="game-screen screen" id="gameScreen" aria-label="게임 화면">
+      <header class="game-header">
+        <button class="back-button" id="gameBackButton" type="button">홈</button>
+        <div class="game-title">
+          <span id="gameDifficultyLabel">사칙연산</span>
+          <strong id="gameTimer">00.00</strong>
+        </div>
+        <button class="icon-button" type="button" aria-label="설정" data-settings-open>⚙</button>
+      </header>
+
+      <section class="game-board" aria-label="게임판">
+        <div class="board-rail">
+          <div class="board-felt game-felt">
+            <div class="skin-doodles" aria-hidden="true">
+              <span class="chalk chalk-a">7+8=15</span>
+              <span class="chalk chalk-b">x ÷ + −</span>
+              <span class="chalk chalk-c">떠든 사람</span>
+              <span class="box-doodle box-a">연산왕</span>
+              <span class="box-doodle box-b">★ ★</span>
+              <span class="box-doodle box-c">주사위 출동!</span>
+              <span class="star-doodle star-a">반짝</span>
+              <span class="star-doodle star-b">✦</span>
+              <span class="star-doodle star-c">45</span>
+              <span class="robot-doodle robot-a">0101</span>
+              <span class="robot-doodle robot-b">계산중</span>
+              <span class="robot-doodle robot-c">⟡</span>
+              <span class="dino-doodle dino-a">화석</span>
+              <span class="dino-doodle dino-b">발자국</span>
+              <span class="dino-doodle dino-c">100</span>
+            </div>
+            <div class="game-target">
+              <div class="target-dice">
+                <span class="game-die black" id="tensDie">?</span>
+                <span>+</span>
+                <span class="game-die black" id="onesDie">?</span>
+              </div>
+              <strong id="targetLabel">목표 ?</strong>
+            </div>
+            <div class="game-status-line" id="recordLine">문제가 곧 공개됩니다.</div>
+            <div class="expression-preview" id="expressionPreview" aria-label="입력한 식">
+              <span class="empty-expression">카운트다운 후 시작합니다.</span>
+            </div>
+            <section class="game-dice-row" id="diceTray" aria-label="흰 주사위">
+            </section>
+            <div class="game-feedback" id="gameFeedback">흰 주사위 5개를 모두 한 번씩 사용하세요.</div>
+            <div class="countdown-layer" id="countdownLayer" hidden>
+              <strong id="countdownNumber">3</strong>
+            </div>
+            <div class="roll-layer" id="rollLayer" hidden>
+              <div class="roll-stage" id="rollStage" aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="operator-bar" aria-label="연산자">
+        <button type="button" data-op="+">+</button>
+        <button type="button" data-op="-">−</button>
+        <button type="button" data-op="*">×</button>
+        <button type="button" data-op="/">÷</button>
+        <button type="button" data-op="(">(</button>
+        <button type="button" data-op=")">)</button>
+        <button class="power-op" id="gamePowerOp" type="button" data-op="power">^</button>
+        <button id="undoButton" type="button">↶</button>
+      </section>
+
+      <div class="game-action-row">
+        <button class="clear-expression-button" id="clearExpressionButton" type="button">전체 지우기</button>
+        <button class="answer-check-button" id="answerCheckButton" type="button">정답 확인</button>
+      </div>
+    </section>
+
+    <section class="solo-sheet" id="soloSheet" aria-label="혼자하기 난이도 선택" hidden>
+      <div class="sheet-backdrop" id="sheetBackdrop"></div>
+      <div class="sheet-panel">
+        <div class="sheet-handle"></div>
+        <header class="sheet-header">
+          <div>
+            <span>혼자하기</span>
+            <h2>난이도 선택</h2>
+          </div>
+          <button class="sheet-close" id="sheetClose" type="button" aria-label="닫기">×</button>
+        </header>
+        <div class="clear-count">
+          <span>클리어</span>
+          <strong id="soloClearCount">37개</strong>
+        </div>
+        <div class="difficulty-cards">
+          <button class="difficulty-card active" type="button" data-difficulty="basic">
+            <span>기본</span>
+            <strong>사칙연산</strong>
+          </button>
+          <button class="difficulty-card" type="button" data-difficulty="power">
+            <span>도전</span>
+            <strong>지수 포함</strong>
+          </button>
+        </div>
+        <div class="battle-goal-options solo-time-options" id="soloTimeLimitOptions">
+          <button type="button" data-solo-time-limit="60000">60초</button>
+          <button class="active" type="button" data-solo-time-limit="120000">120초</button>
+          <button type="button" data-solo-time-limit="0">무제한</button>
+        </div>
+        <button class="sheet-start" id="sheetStart" type="button">시작하기</button>
+      </div>
+    </section>
+
+    <section class="success-result" id="successResult" aria-label="정답 결과" hidden>
+      <div class="result-card">
+        <span class="result-kicker" id="resultKicker">정답!</span>
+        <strong class="result-time" id="resultTime">12.48초</strong>
+        <div class="result-stats">
+          <div>
+            <span>누적 클리어</span>
+            <strong id="resultClearCount">38개</strong>
+          </div>
+          <div>
+            <span>다음 보상</span>
+            <strong id="resultNextReward">38 / 100</strong>
+          </div>
+        </div>
+        <p id="resultMessage">다음 스킨까지 62개 남았어요.</p>
+        <button class="result-reward-button" id="resultRewardButton" type="button" hidden>스킨 받기</button>
+        <div class="result-actions">
+          <button class="result-next" id="resultNextButton" type="button">다음 문제</button>
+          <button class="result-home" id="resultHomeButton" type="button">홈</button>
+        </div>
+        <aside class="ad-slot result-ad-slot" aria-label="광고">
+          <span>광고</span>
+          <img src="ad-banner.jpg?v=20260605-rules1" alt="광고 배너">
+        </aside>
+      </div>
+    </section>
+
+    <section class="reward-reveal" id="rewardReveal" aria-label="스킨 획득" hidden>
+      <div class="reward-card">
+        <span class="reward-kicker" id="rewardKicker">100개 달성!</span>
+        <div class="reward-shell" id="rewardShell">
+          <span class="reward-crack crack-a"></span>
+          <span class="reward-crack crack-b"></span>
+          <span class="reward-crack crack-c"></span>
+          <span class="reward-swatch" id="rewardSwatch"></span>
+        </div>
+        <h2 id="rewardTitle">새 스킨 획득!</h2>
+        <p id="rewardCopy">별빛 연산실을 받았어요.</p>
+        <div class="reward-actions">
+          <button class="reward-apply" id="rewardApply" type="button">지금 적용</button>
+          <button class="reward-later" id="rewardLater" type="button">나중에</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js?v=20260614-large-room-test1"></script>
+  <script src="firebase-client.js?v=20260614-large-room-test1"></script>
+  <script src="app.js?v=20260614-large-room-test1"></script>
+</body>
+</html>
